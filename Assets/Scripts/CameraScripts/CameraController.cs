@@ -18,6 +18,12 @@ public class CameraController : MonoBehaviour
 
     private float verticalRotation = 0;
 
+    private void Start()
+    {
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
+    }
+
     void Update()
     {
         if (rotate)
