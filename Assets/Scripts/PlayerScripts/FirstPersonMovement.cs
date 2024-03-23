@@ -40,6 +40,10 @@ public class FirstPersonMovement : MonoBehaviour
     [Tooltip("Velocidade da transição de espiar.")]
     public float peekSpeed = 5f;
 
+    [Header("Referências")]
+    [Tooltip("Referência ao script de controle da câmera que contém os métodos de balanço.")]
+    public CameraController cameraController;
+
     private CharacterController characterController;
     private Transform cameraTransform;
     private float currentStamina;
@@ -48,6 +52,8 @@ public class FirstPersonMovement : MonoBehaviour
     private bool isRunning = false;
     private float currentCameraHeight;
     private float peekSide = 0f; // -1 para esquerda, 1 para direita, 0 para centro
+    private bool isMoving = false;
+
 
     public bool IsRunning()
     {
@@ -66,15 +72,20 @@ public class FirstPersonMovement : MonoBehaviour
 
     void Update()
     {
-        MovePlayer();
         RecoverStamina();
         HandleCrouching();
         UpdateCameraHeight();
         HandlePeek();
+        HandleBobbing();
 
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
 
+    }
+
+    private void FixedUpdate()
+    {
+        MovePlayer();
     }
 
     void MovePlayer()
@@ -87,13 +98,19 @@ public class FirstPersonMovement : MonoBehaviour
             speed *= runSpeedMultiplier;
             ConsumeStamina(Time.deltaTime * staminaConsumptionRate);
             timeSinceLastRun = 0;
+            if (cameraController) cameraController.RunBob();
         }
         else if (isCrouching)
         {
-            speed *= 0.5f; // Reduz a velocidade pela metade enquanto estiver abaixado
+            speed *= 0.5f;
+            if (cameraController) cameraController.CrouchBob();
         }
         else
         {
+            if (characterController.velocity.magnitude > 0.1f && cameraController) // Verifica se o personagem está se movendo
+            {
+                cameraController.WalkBob();
+            }
             timeSinceLastRun += Time.deltaTime;
         }
 
@@ -101,6 +118,8 @@ public class FirstPersonMovement : MonoBehaviour
         float vertical = Input.GetAxis("Vertical") * speed;
         Vector3 moveDirection = transform.right * horizontal + transform.forward * vertical;
         characterController.Move(moveDirection * Time.deltaTime);
+        isMoving = moveDirection.magnitude > 0; // Atualiza isMoving com base na magnitude do movimento
+
     }
 
     void ConsumeStamina(float amount)
@@ -153,5 +172,22 @@ public class FirstPersonMovement : MonoBehaviour
         Vector3 cameraPosition = cameraTransform.localPosition;
         cameraPosition.x = Mathf.Lerp(cameraPosition.x, targetPeekPosition, Time.deltaTime * peekSpeed);
         cameraTransform.localPosition = cameraPosition;
+    }
+
+    void HandleBobbing()
+    {
+        if (!cameraController) return;
+
+        if (isMoving)
+        {
+            if (isRunning) cameraController.RunBob();
+            else if (isCrouching) cameraController.CrouchBob();
+            else cameraController.WalkBob();
+        }
+        else
+        {
+            Debug.Log("stop bobbing");
+            cameraController.StopBob(); // Chama StopBob quando não está se movendo
+        }
     }
 }
