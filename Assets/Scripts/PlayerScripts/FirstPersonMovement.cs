@@ -61,7 +61,6 @@ public class FirstPersonMovement : MonoBehaviour
         characterController = GetComponent<CharacterController>();
         cameraTransform = GetComponentInChildren<Camera>().transform;
         currentStamina = maxStamina;
-        Cursor.lockState = CursorLockMode.Locked;
         standingCameraHeight = cameraTransform.localPosition.y;
     }
 
@@ -72,6 +71,10 @@ public class FirstPersonMovement : MonoBehaviour
         HandleCrouching();
         UpdateCameraHeight();
         HandlePeek();
+
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
+
     }
 
     void MovePlayer()
