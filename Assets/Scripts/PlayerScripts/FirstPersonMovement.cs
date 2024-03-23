@@ -40,9 +40,11 @@ public class FirstPersonMovement : MonoBehaviour
     [Tooltip("Velocidade da transição de espiar.")]
     public float peekSpeed = 5f;
 
-    [Header("Referências")]
+    [Header("Uff Referências")]
     [Tooltip("Referência ao script de controle da câmera que contém os métodos de balanço.")]
     public CameraController cameraController;
+    [Tooltip("Referência ao Animator das mãos.")]
+    public Animator handAnimator;
 
     private CharacterController characterController;
     private Transform cameraTransform;
@@ -77,6 +79,7 @@ public class FirstPersonMovement : MonoBehaviour
         UpdateCameraHeight();
         HandlePeek();
         HandleBobbing();
+        AdjustHandAnimationSpeed();
 
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
@@ -189,5 +192,16 @@ public class FirstPersonMovement : MonoBehaviour
             Debug.Log("stop bobbing");
             cameraController.StopBob(); // Chama StopBob quando não está se movendo
         }
+    }
+
+    /// <summary>
+    /// Ajusta a velocidade da animação das mãos com base no estado de movimento do jogador.
+    /// </summary>
+    void AdjustHandAnimationSpeed()
+    {
+        if (handAnimator == null) return;
+
+        // Se estiver correndo, define o parâmetro Speed como 6. Caso contrário, volta ao padrão (1).
+        handAnimator.SetFloat("Speed", isRunning ? 8.5f : 1f);
     }
 }
