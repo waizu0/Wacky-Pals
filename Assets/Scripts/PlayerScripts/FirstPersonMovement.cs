@@ -40,6 +40,11 @@ public class FirstPersonMovement : MonoBehaviour
     [Tooltip("Velocidade da transição de espiar.")]
     public float peekSpeed = 5f;
 
+    [Header("Configurações de Gravidade")]
+    [Tooltip("Força da gravidade aplicada ao jogador.")]
+    public float gravity = -9.81f;
+    private bool isGrounded;
+
     [Header("Uff Referências")]
     [Tooltip("Referência ao script de controle da câmera que contém os métodos de balanço.")]
     public CameraController cameraController;
@@ -56,6 +61,7 @@ public class FirstPersonMovement : MonoBehaviour
     private float peekSide = 0f; // -1 para esquerda, 1 para direita, 0 para centro
     private bool isMoving = false;
 
+    private Vector3 velocity;
 
     public bool IsRunning()
     {
@@ -88,7 +94,17 @@ public class FirstPersonMovement : MonoBehaviour
 
     private void FixedUpdate()
     {
+        isGrounded = characterController.isGrounded;
+        if (isGrounded && velocity.y < 0)
+        {
+            velocity.y = 0f;
+        }
+
         MovePlayer();
+
+        // Aplicar gravidade
+        velocity.y += gravity * Time.deltaTime;
+        characterController.Move(velocity * Time.deltaTime);
     }
 
     void MovePlayer()
@@ -115,6 +131,12 @@ public class FirstPersonMovement : MonoBehaviour
                 cameraController.WalkBob();
             }
             timeSinceLastRun += Time.deltaTime;
+        }
+
+        // Modificação para incluir verificação de solo
+        if (isGrounded && velocity.y < 0)
+        {
+            velocity.y = -2f; // Uma pequena força para garantir que o personagem fique bem colado ao chão
         }
 
         float horizontal = Input.GetAxis("Horizontal") * speed;

@@ -1391,6 +1391,7 @@ MonoBehaviour:
   verticalRotationLimit: 80
   peekDistance: 1
   peekSpeed: 5
+  gravity: -9.81
   cameraController: {fileID: 330585548}
   handAnimator: {fileID: 919132148520550216}
 --- !u!143 &1983109973
@@ -1500,7 +1501,7 @@ MonoBehaviour:
   flashlightLight: {fileID: 307830319}
   batteryLifeTime: 420
   criticalBatteryPercentage: 15
-  batteryPercentage: 100
+  handAnimator: {fileID: 919132148520550216}
 --- !u!114 &1983109980
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2799,7 +2800,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2397084886519232136}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
