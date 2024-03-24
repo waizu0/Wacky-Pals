@@ -26,6 +26,8 @@ public class PlayerFlashlightManager : MonoBehaviour
     private float lastToggleTime = -2f; // Inicializa com um valor que permite a ativação imediata no começo
     private float toggleDelay = .55f; // Tempo necessário para esperar antes de poder ligar/desligar novamente
 
+    public float BatteryPercentage { get { return batteryPercentage; } }
+
     private void Start()
     {
         if (!flashlightLight) flashlightLight = GetComponent<Light>();
