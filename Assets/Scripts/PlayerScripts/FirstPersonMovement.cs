@@ -63,6 +63,10 @@ public class FirstPersonMovement : MonoBehaviour
 
     private Vector3 velocity;
 
+    public float CurrentStamina { get { return currentStamina; } }
+    public float MaxStamina { get { return maxStamina; } }
+
+
     public bool IsRunning()
     {
         return Input.GetKey(KeyCode.LeftShift) && currentStamina > 0 && !isCrouching;
