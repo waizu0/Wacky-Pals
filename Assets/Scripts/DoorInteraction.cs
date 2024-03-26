@@ -1,92 +1,81 @@
 using UnityEngine;
 
 /// <summary>
-/// Permite ao jogador interagir com a porta, arrastando com o mouse para abrir ou fechar.
-/// Observa��o: Este script deve ser anexado ao GameObject pivot da porta.
+/// Gerencia a abertura e fechamento de uma porta, estendendo a classe base InteractableObject.
+/// Define comportamentos específicos de interação com a porta, como reprodução de animações e efeitos sonoros.
 /// </summary>
-public class DoorDragInteraction : MonoBehaviour
+[RequireComponent(typeof(Animation), typeof(AudioSource))]
+public class DoorInteraction : InteractableObject
 {
-    [Header("Configura��es de Intera��o com a Porta")]
-    [Tooltip("Velocidade com que a porta segue o arrasto do mouse.")]
-    public float dragSpeed = 100f;
-    [Tooltip("For�a de amortecimento aplicada ao movimento da porta.")]
-    public float damping = 5f;
+    [Header("Configurações da Porta")]
+    [Tooltip("Referência para o objeto da porta que possui a animação.")]
+    [SerializeField] private GameObject doorChild;
 
-    private Transform playerCamera;
-    private bool isDragging = false;
-    private float angleDragStart;
-    private float angleDoorStart;
-    private Vector3 dragDirection;
+    [Header("Efeitos Sonoros da Porta")]
+    [Tooltip("Efeito sonoro de abrir a porta.")]
+    [SerializeField] private AudioClip openSound;
+    [Tooltip("Efeito sonoro de fechar a porta.")]
+    [SerializeField] private AudioClip closeSound;
 
+    private Animation doorAnimation; // Componente Animation do objeto da porta.
+    private AudioSource audioSource; // Componente AudioSource para tocar os efeitos sonoros.
+    private bool doorOpen = false; // Estado da porta (aberta ou fechada).
 
-    private void Start()
+    void Start()
     {
-        playerCamera = Camera.main.transform;
+        // Inicializa os componentes necessários, buscando-os nos objetos apropriados.
+        doorAnimation = doorChild.GetComponent<Animation>();
+        audioSource = GetComponent<AudioSource>();
     }
 
-    private void Update()
+    /// <summary>
+    /// Método de interação que alterna o estado da porta, implementado da classe base InteractableObject.
+    /// Verifica o estado atual da porta e a alterna entre aberta e fechada.
+    /// </summary>
+    public override void Interact()
     {
-        if (Input.GetMouseButtonDown(0) && RaycastDoor())
+        ToggleDoor();
+    }
+
+    /// <summary>
+    /// Alterna o estado da porta, verificando se ela está atualmente aberta ou fechada e acionando a animação apropriada.
+    /// Impede a interação se uma animação já estiver sendo reproduzida, para evitar sobreposições ou interrupções indesejadas.
+    /// </summary>
+    private void ToggleDoor()
+    {
+        if (doorAnimation.isPlaying) return; // Impede a interação durante a reprodução de uma animação.
+
+        if (!doorOpen)
         {
-            StartDragging();
+            OpenDoor();
         }
-        else if (Input.GetMouseButtonUp(0) && isDragging)
+        else
         {
-            StopDragging();
-        }
-
-        if (isDragging)
-        {
-            DragDoor();
+            CloseDoor();
         }
     }
 
-    bool RaycastDoor()
+    /// <summary>
+    /// Executa a animação e o som de abertura da porta.
+    /// Define a animação "Open" para ser reproduzida e o efeito sonoro de abrir, acionando ambos.
+    /// </summary>
+    private void OpenDoor()
     {
-        RaycastHit hit;
-        Ray ray = playerCamera.GetComponent<Camera>().ScreenPointToRay(Input.mousePosition);
-
-        if (Physics.Raycast(ray, out hit, 100f))
-        {
-            if (hit.collider.transform == transform)
-            {
-                return true;
-            }
-        }
-        return false;
+        doorAnimation.Play("Open"); // Nome da animação de abertura.
+        audioSource.clip = openSound;
+        audioSource.Play();
+        doorOpen = true;
     }
 
-    void StartDragging()
+    /// <summary>
+    /// Executa a animação e o som de fechamento da porta.
+    /// Define a animação "Close" para ser reproduzida e o efeito sonoro de fechar, acionando ambos.
+    /// </summary>
+    private void CloseDoor()
     {
-        isDragging = true;
-        angleDragStart = GetAngleToCursor();
-        angleDoorStart = transform.localEulerAngles.y;
-        dragDirection = Vector3.Cross(playerCamera.forward, transform.up).normalized;
-    }
-
-    void DragDoor()
-    {
-        float angleCurrent = GetAngleToCursor();
-        float angleDelta = angleCurrent - angleDragStart;
-        float targetAngle = angleDoorStart + angleDelta * dragSpeed;
-
-        Quaternion targetRotation = Quaternion.Euler(0, targetAngle, 0);
-        transform.localRotation = Quaternion.Lerp(transform.localRotation, targetRotation, Time.deltaTime * damping);
-    }
-
-    void StopDragging()
-    {
-        isDragging = false;
-    }
-
-    float GetAngleToCursor()
-    {
-        Ray ray = playerCamera.GetComponent<Camera>().ScreenPointToRay(Input.mousePosition);
-        Plane plane = new Plane(-dragDirection, transform.position);
-        float enter;
-        plane.Raycast(ray, out enter);
-        Vector3 intersection = ray.GetPoint(enter);
-        Vector3 direction = intersection - transform.position;
-        return Vector3.SignedAngle(dragDirection, direction, transform.up);
+        doorAnimation.Play("Close"); // Nome da animação de fechamento.
+        audioSource.clip = closeSound;
+        audioSource.Play();
+        doorOpen = false;
     }
 }

@@ -1,10 +1,10 @@
 using UnityEngine;
-using UnityEngine.UI; // Importando para acessar o componente Image
-using System.Collections.Generic; // Necessário para usar List<>
+using UnityEngine.UI; // Necessário para UI.
+using System.Collections.Generic; // Necessário para List<>.
 
 /// <summary>
-/// Gerencia a interação do jogador com objetos que podem ser interagidos no jogo.
-/// Ignora o próprio jogador e seus filhos durante a detecção de objetos interagíveis.
+/// Gerencia a interação do jogador com objetos interagíveis no jogo.
+/// Evita a necessidade de múltiplas verificações de tag e GetComponent, utilizando uma abordagem baseada em classe abstrata.
 /// </summary>
 public class PlayerInteractionManager : MonoBehaviour
 {
@@ -19,26 +19,16 @@ public class PlayerInteractionManager : MonoBehaviour
     [Tooltip("Camadas para ignorar durante o raycast.")]
     public LayerMask ignoreLayer;
 
-    [Header("Sprites de Dicas de Interação")]
-    [Tooltip("Lista de sprites para diferentes objetos interagíveis.")]
-    [SerializeField]
-    private List<Sprite> interactionSprites;
-
-    [Header("Tags de Objetos Interagíveis")]
-    [Tooltip("Lista de tags correspondentes aos sprites de interação.")]
-    [SerializeField]
-    private List<string> interactableTags;
-
-    private Camera playerCamera;
-    private float sqrInteractionDistance;
-    private Image interactionImage; // Componente Image do indicador de interação
+    private Camera playerCamera; // Referência para a câmera do jogador.
+    private float sqrInteractionDistance; // Distância de interação ao quadrado para otimizar cálculos.
+    private Image interactionImage; // Componente Image do indicador de interação.
 
     void Start()
     {
-        playerCamera = Camera.main;
-        interactionCue.SetActive(false);
-        sqrInteractionDistance = interactionDistance * interactionDistance;
-        interactionImage = interactionCue.GetComponent<Image>(); // Alocando o componente Image
+        playerCamera = Camera.main; // Alocando a câmera principal do jogo.
+        interactionCue.SetActive(false); // Desativando a indicação visual de interação por padrão.
+        sqrInteractionDistance = interactionDistance * interactionDistance; // Pré-calculando a distância ao quadrado.
+        interactionImage = interactionCue.GetComponent<Image>(); // Alocando o componente Image.
     }
 
     void Update()
@@ -51,21 +41,34 @@ public class PlayerInteractionManager : MonoBehaviour
         RaycastHit hit;
         Vector3 rayOrigin = playerCamera.transform.position;
         Vector3 rayDirection = playerCamera.transform.forward;
+
+        // Realiza um raycast para detectar objetos interagíveis.
         bool hitDetected = Physics.Raycast(rayOrigin, rayDirection, out hit, interactionDistance, ~ignoreLayer);
 
         if (hitDetected && Vector3.SqrMagnitude(hit.point - rayOrigin) <= sqrInteractionDistance)
         {
-            for (int i = 0; i < interactableTags.Count; i++)
+            InteractableObject interactableObject = hit.collider.GetComponent<InteractableObject>();
+
+            if (interactableObject != null)
             {
-                if (hit.collider.CompareTag(interactableTags[i]))
+                // Ativa o indicador visual e ajusta o sprite conforme necessário aqui.
+                interactionCue.SetActive(true);
+
+                if (Input.GetKeyDown(KeyCode.Mouse0))
                 {
-                    interactionCue.SetActive(true);
-                    interactionImage.sprite = interactionSprites[i];
-                    return; // Encontrou um objeto interagível, então saia do método
+                    interactableObject.Interact(); // Chama o método Interact do objeto interagível.
                 }
             }
+            else
+            {
+                // Se nenhum objeto interagível foi encontrado, desativa o indicador visual.
+                interactionCue.SetActive(false);
+            }
         }
-
-        interactionCue.SetActive(false);
+        else
+        {
+            // Se o raycast não detectar nada, desativa o indicador visual.
+            interactionCue.SetActive(false);
+        }
     }
 }
