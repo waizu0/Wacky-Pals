@@ -14,7 +14,6 @@ Material:
   m_ValidKeywords: []
   m_InvalidKeywords:
   - DETAIL_OVERLAY
-  - MOON
   - OVERHEAD_CLOUD
   - STARS
   - STARS_LAYER_0
@@ -55,7 +54,6 @@ Material:
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
   - DETAIL_OVERLAY
-  - MOON
   - OVERHEAD_CLOUD
   - STARS
   - STARS_LAYER_0
@@ -212,7 +210,7 @@ MonoBehaviour:
   sunCubemap: {fileID: 0}
   sunLightColor: {r: 1, g: 0.9929226, b: 0.9009434, a: 1}
   sunLightIntensity: 1
-  enableMoon: 1
+  enableMoon: 0
   moonTexture: {fileID: 0}
   moonColor: {r: 0, g: 0, b: 0, a: 0}
   moonSize: 0
