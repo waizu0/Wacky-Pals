@@ -14,7 +14,9 @@ public class DoorInteraction : InteractableObject
 
     private Animation doorAnimation; // Componente Animation do objeto da porta.
     private bool doorOpen = false; // Estado da porta (aberta ou fechada).
-    private float defaultVolume = 1.0f; // Volume padrão para tocar os sons.
+    public float defaultVolume = 1.0f; // Volume padrão para tocar os sons.
+
+    public bool debug;
 
     void Start()
     {
@@ -25,6 +27,15 @@ public class DoorInteraction : InteractableObject
     public override void Interact()
     {
         ToggleDoor();
+    }
+
+    // Como teste, ao apertar C, fecha/abre a porta.
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.C) && debug)
+        {
+            ToggleDoor();
+        }
     }
 
     private void ToggleDoor()

@@ -23,4 +23,14 @@ public class PudgePorkAnimation : MonoBehaviour
         bool isMoving = agent.velocity.magnitude > 0.1f; // Assume movimento se a velocidade for maior que um limiar mínimo.
         animator.SetBool(IsWalkingHash, isMoving);
     }
+
+    /// <summary>
+    /// Ativa ou desativa a animação de encurvamento.
+    /// </summary>
+    /// <param name="isBending">Se verdadeiro, ativa a animação de encurvar.</param>
+    public void SetBending(bool isBending)
+    {
+        animator.SetBool("isBending", isBending);
+    }
+
 }
